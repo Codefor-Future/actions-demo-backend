@@ -25,32 +25,32 @@ jobs:
           # Navigate to the app directory
           cd /home/ubuntu/flask-prod || { echo "Failed to cd into ppt-generator"; exit 1; }
           # Mark the directory as safe
-          sudo git config --global --add safe.directory /home/ubuntu/flask-prod
+          git config --global --add safe.directory /home/ubuntu/flask-prod
           # Add user_ip_log.json to .gitignore if not already present
-          if ! sudo grep -qx "user_ip_log.json" .gitignore; then
-            echo "user_ip_log.json" | sudo tee -a .gitignore
-            sudo git rm --cached user_ip_log.json  # Stop tracking the file
-            sudo git add .gitignore
-            sudo git commit -m "Add user_ip_log.json to .gitignore" || echo "No changes to commit"
+          if ! grep -qx "user_ip_log.json" .gitignore; then
+            echo "user_ip_log.json" | tee -a .gitignore
+            git rm --cached user_ip_log.json  # Stop tracking the file
+            git add .gitignore
+            git commit -m "Add user_ip_log.json to .gitignore" || echo "No changes to commit"
           fi
           # Stash any uncommitted changes
-          sudo git stash || echo "Nothing to stash"
+          git stash || echo "Nothing to stash"
           # Pull the latest changes
-          sudo git pull origin main || { echo "Git pull failed"; exit 1; }
+          git pull origin main || { echo "Git pull failed"; exit 1; }
           # Create the virtual environment if it doesn't exist
           if [ ! -d "venv" ]; then
-            sudo python3 -m venv venv
+            python3 -m venv venv
           fi
           # Activate the virtual environment
           source venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
           # Upgrade pip and install dependencies within the virtual environment
-          sudo venv/bin/pip install --upgrade pip
-          sudo venv/bin/pip install -r requirements.txt || { echo "pip install failed"; exit 1; }
+          venv/bin/pip install --upgrade pip
+          venv/bin/pip install -r requirements.txt || { echo "pip install failed"; exit 1; }
           # Run Flask database migrations
           export FLASK_APP=main.py
           flask db upgrade || { echo "Flask migration failed"; exit 1; }
           # Restart the Flask application service
-          sudo systemctl restart flask-prod
+          systemctl restart flask-prod
         EOF
         
     - name: Deploy to Development (dev branch)
@@ -60,30 +60,30 @@ jobs:
           # Navigate to the app directory
           cd /var/www/dev/ppt-generator || { echo "Failed to cd into ppt-generator"; exit 1; }
           # Mark the directory as safe
-          sudo git config --global --add safe.directory /home/ubuntu/ppt-generator
+          git config --global --add safe.directory /home/ubuntu/ppt-generator
           # Add user_ip_log.json to .gitignore if not already present
-          if ! sudo grep -qx "user_ip_log.json" .gitignore; then
-            echo "user_ip_log.json" | sudo tee -a .gitignore
-            sudo git rm --cached user_ip_log.json  # Stop tracking the file
-            sudo git add .gitignore
-            sudo git commit -m "Add user_ip_log.json to .gitignore" || echo "No changes to commit"
+          if ! grep -qx "user_ip_log.json" .gitignore; then
+            echo "user_ip_log.json" | tee -a .gitignore
+            git rm --cached user_ip_log.json  # Stop tracking the file
+            git add .gitignore
+            git commit -m "Add user_ip_log.json to .gitignore" || echo "No changes to commit"
           fi
           # Stash any uncommitted changes
-          sudo git stash || echo "Nothing to stash"
+          git stash || echo "Nothing to stash"
           # Pull the latest changes
-          sudo git pull origin dev || { echo "Git pull failed"; exit 1; }
+          git pull origin dev || { echo "Git pull failed"; exit 1; }
           # Create the virtual environment if it doesn't exist
           if [ ! -d "venv" ]; then
-            sudo python3 -m venv venv
+            python3 -m venv venv
           fi
           # Activate the virtual environment
           source venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
           # Upgrade pip and install dependencies within the virtual environment
-          sudo venv/bin/pip install --upgrade pip
-          sudo venv/bin/pip install -r requirements.txt || { echo "pip install failed"; exit 1; }
+          venv/bin/pip install --upgrade pip
+          venv/bin/pip install -r requirements.txt || { echo "pip install failed"; exit 1; }
           # Run Flask database migrations
           export FLASK_APP=main.py
           flask db upgrade || { echo "Flask migration failed"; exit 1; }
           # Restart the Flask application service
-          sudo systemctl restart dev-api
+          systemctl restart dev-api
         EOF
